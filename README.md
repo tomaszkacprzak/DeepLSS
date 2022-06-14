@@ -9,7 +9,7 @@ The notebook used to plot the results is in `deep_lss/notebooks/figures_deeplss.
 
 # The data
 
-The data will be available soon at [cosmogrid.ai](www.cosmogrid.ai).
+The data will be available soon at [cosmogrid.ai](http://www.cosmogrid.ai).
 
 # Using this code for scientific projects and publications
 
