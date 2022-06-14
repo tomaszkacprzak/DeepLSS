@@ -6,6 +6,6 @@ To reproduce the results, see the `pipelines` directory.
 You will need configuration files from `config` and the submission script [esub](https://github.com/tomaszkacprzak/esub)
 
 
-# Using this code for futher scientific projects and publications
+# Using this code for scientific projects and publications
 
 The code is available for public use. If you would like to use this code for a scientific project or publication, we kindly request to inform us by [email](tomaszk@phys.ethz.ch).
