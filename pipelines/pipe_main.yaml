@@ -1,0 +1,70 @@
+##########################################################
+####
+####       Template pipeline for the "clustering noise" experiment
+####       To spawn the full pipeline, run:
+####       python repos/deep_lss/deep_lss/apps/run_make_analysis_variants.py --experiment=main -c=config_main -p=pipe_main
+####
+####       --batch_args_pass="begin=now+200minutes" --continue_training --copy_dataset
+##########################################################
+
+# Janis' network config in sigvar mode for kg
+
+- name: //tra_smoothing
+  cmd: esub repos/deep_lss/deep_lss/apps/run_trainer.py --filename_config=config_smoothing.yaml  --dir_output=results/smoothing/  --models_filter=* --tasks='60>120' --n_cores=60 --mode=jobarray  --verbosity=info --queue=gwen_short
+
+- name: //pre_smoothing
+  dep: tra_smoothing
+  cmd: esub repos/deep_lss/deep_lss/apps/run_predictor.py --filename_config=config_smoothing.yaml --models_filter=* --dir_output=results/smoothing/ --tasks='0>20' --n_cores=20 --function=main+merge --queue=gwen_short --verbosity=info --mode=jobarray 
+
+- name: //lik_smoothing
+  dep: pre_smoothing
+  cmd: esub repos/deep_lss/deep_lss/apps/run_likebuilder.py --filename_config=config_smoothing.yaml --dir_output=results/smoothing/ --function=main --tasks='0>6' --n_cores=6 --queue=gpu_short --mode=jobarray 
+
+- name: //con_smoothing
+  dep: lik_smoothing 
+  cmd: esub repos/deep_lss/deep_lss/apps/run_constrainer.py --filename_config=config_smoothing.yaml --dir_output=results/smoothing/ --tasks='0>200' --function=main+merge --queue=cpu --n_cores=200 --mode=jobarray
+
+
+
+# opt
+
+- name: //tra_opt4
+  cmd: esub repos/deep_lss/deep_lss/apps/run_trainer.py --filename_config=config_opt4.yaml  --dir_output=results/opt4/  --models_filter=* --tasks='0>48' --n_cores=48 --mode=jobarray  --verbosity=info --queue=gwen_short
+
+- name: //tra_opt5
+  cmd: esub repos/deep_lss/deep_lss/apps/run_trainer.py --filename_config=config_opt5.yaml  --dir_output=results/opt5/  --models_filter=* --tasks='0>48' --n_cores=48 --mode=jobarray  --verbosity=info --queue=gwen_short
+
+# s3base - stage3 with better network config
+
+- name: //tra_stage3linear
+  cmd: esub repos/deep_lss/deep_lss/apps/run_trainer.py --filename_config=config_stage3linear.yaml  --dir_output=results/stage3linear/  --models_filter=* --tasks='72>144' --n_cores=72 --mode=jobarray  --verbosity=info --queue=gwen_short2
+
+# s3nonlin2 - second version of nonlin with better network config
+
+- name: //tra_stage3nonlin
+  cmd: esub repos/deep_lss/deep_lss/apps/run_trainer.py --filename_config=config_stage3nonlin.yaml  --dir_output=results/stage3nonlin/  --models_filter=* --tasks='72>144' --n_cores=72 --mode=jobarray  --verbosity=info --queue=gwen_short1
+
+
+# postprocess
+
+- name: //snapshot_2203151400
+  cmd: esub repos/deep_lss/deep_lss/apps/run_backuper.py --src=results/ --dst=snapshots/results_2203151400/  --n_cores=1 --mode=jobarray  --verbosity=info  --batch_args_pass="begin=now"
+
+- name: //pre_stage3linear_2203151400
+  dep: snapshot_2203151400
+  cmd: esub repos/deep_lss/deep_lss/apps/run_predictor.py --filename_config=config_stage3linear.yaml --models_filter=*base* --dir_output=snapshots/results_2203151400/stage3linear/ --tasks='0>57' --n_cores=57 --function=main+merge --queue=gwen_short --verbosity=info --mode=jobarray 
+
+- name: lik_stage3linear_2203151400
+  dep: pre_stage3linear_2203151400
+  cmd: esub repos/deep_lss/deep_lss/apps/run_likebuilder.py --filename_config=config_stage3linear.yaml --models_filter=*base* --dir_output=snapshots/results_2203151400/stage3linear/ --function=merge --tasks='0>6' --n_cores=6 --queue=gwen_short --mode=jobarray
+
+- name: //pre_stage3nonlin_2203151400
+  dep: snapshot_2203151400
+  cmd: esub repos/deep_lss/deep_lss/apps/run_predictor.py --filename_config=config_stage3nonlin.yaml --models_filter=* --dir_output=snapshots/results_2203151400/stage3nonlin/ --tasks='0>57' --n_cores=57 --function=main+merge --queue=gwen_short --verbosity=info --mode=jobarray 
+
+- name: lik_stage3nonlin_2203151400
+  dep: pre_stage3nonlin_2203151400
+  cmd: esub repos/deep_lss/deep_lss/apps/run_likebuilder.py --filename_config=config_stage3nonlin.yaml --models_filter=* --dir_output=snapshots/results_2203151400/stage3nonlin/ --function=merge --tasks='0>4' --n_cores=4 --queue=gwen_short --mode=jobarray
+
+
+

@@ -1,0 +1,172 @@
+tag: noia
+
+files:
+  sim_grid: /data/project/general/DeepLearningCP/data/KiDS450_CNN_Analysis/data/Simulation_Shells/KiDS450_new_run/KiDs450_new_grid
+  nz: /data/user/kacprz_t/projects/211027_combined_lss_ai/redshift_distributions/
+  projected_maps: /shared-scratch/kacprz_t/data/projected_maps_kids450mosaic2/
+  # projected_maps: /data/project/general/DeepLearningCP/data/data_products/projected_maps_kids450mosaic2/
+  astro_prior_grid: /shared-scratch/kacprz_t/data/astrosamples/
+
+params_astro_const:
+  ng_eff: 2.13 # number of galaxies per arcmin^2  3879823 2990099 2970570 2687130
+  sigma_e: 0.4 # galaxy shape+measurement noise
+  map_patch_size_deg: 5 # size of the image side in degrees
+  galaxy_counts_noise_model: no_clustering_for_kg
+  z_ia_pivot: 0.68
+  z_bg_pivot: 0.68
+
+analysis_settings:
+  probes: ['kg', 'dg'] # full set 'kg', 'dg'] 
+  redshift_bins: [0,1,2,3] # bin4 is the total
+  # theta: ['Omega_m', 'sigma_8', 'A_IA', 'b_gal', 'r_stoch', 'eta_A_IA', 'eta_b_gal'] # full set ['omega_m', 'sigma_8', 'A_IA', 'b_gal', 'r_stoch']
+  n_grid_theta_astro: 5000
+  n_samples: 128000
+  sampler: emcee
+  params_sim: params_kids450mosaic
+
+training:
+  batch_size: 100 
+  n_batches_per_epoch: 1000
+  n_epochs: 100
+  transform_theta: S8
+  neff_decay_n0: 0 # set 0 for no augmentation
+  neff_decay_half_time: 20000
+  transform_maps: False
+  mosaic: True
+
+
+priors:
+  # omega_m is on a precomputed simulation grid 0
+  # sigma_8 is on a precomputed simulation grid 1
+  A_IA: 0 # fid min max 2
+  b_gal: 1 # fid min max 3 
+  r_stoch: 1 # fid min max 4
+  alpha0_spoiss: 1.0 # fid min max 5
+  alpha1_spoiss: 0.0 # fid min max 6
+  eta_A_IA: 0.0 # fid min max 7 
+  eta_b_gal: 0.0 # fid min max 8
+
+likelihood_modelling:
+  n_epochs: 1000
+  batch_size: 1000
+  likenet:
+    n_gaussians: 3
+
+
+lssnets:
+
+
+
+
+#############################################################################
+# lensing control
+#############################################################################
+
+
+
+
+    - name: kg_standard_cnn_sig1
+      model: lsscnn
+      probes: kg
+      smoothing_sigma_arcmin: 0.737 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.00005
+      grad_clip_percentile: 90
+      normalization: null # [null, batch_norm, layer_norm]
+      kernel_size: 5
+      n_conv_layers: 4
+      n_res_layers: 10
+      filters: 128
+
+    - name: kg_standard_psd_sig1
+      model: lsspsd
+      probes: kg
+      smoothing_sigma_arcmin: 0.737 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.0002
+      grad_clip_percentile: 90
+      ells: [36, 4536, 20]
+      kernel_size: 3
+      n_conv_layers: 2
+      n_res_layers: 0
+      filters: 512
+      arch: classic
+
+
+
+
+    - name: kg_standard_cnn_sig2
+      model: lsscnn
+      probes: kg
+      smoothing_sigma_arcmin: 1.882 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.00005
+      grad_clip_percentile: 90
+      normalization: null # [null, batch_norm, layer_norm]
+      kernel_size: 5
+      n_conv_layers: 4
+      n_res_layers: 10
+      filters: 128
+
+    - name: kg_standard_psd_sig2
+      model: lsspsd
+      probes: kg
+      smoothing_sigma_arcmin: 1.882 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.0002
+      grad_clip_percentile: 90
+      ells: [36, 4536, 20]
+      kernel_size: 3
+      n_conv_layers: 2
+      n_res_layers: 0
+      filters: 512
+      arch: classic
+
+
+    - name: kg_standard_cnn_sig4
+      model: lsscnn
+      probes: kg
+      smoothing_sigma_arcmin: 3.942 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.00005
+      grad_clip_percentile: 90
+      normalization: null # [null, batch_norm, layer_norm]
+      kernel_size: 5
+      n_conv_layers: 4
+      n_res_layers: 10
+      filters: 128
+
+    - name: kg_standard_psd_sig4
+      model: lsspsd
+      probes: kg
+      smoothing_sigma_arcmin: 3.942 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.0002
+      grad_clip_percentile: 90
+      ells: [36, 4536, 20]
+      kernel_size: 3
+      n_conv_layers: 2
+      n_res_layers: 0
+      filters: 512
+      arch: classic
+
+
+
+    - name: kg_standard_cnn_sig8
+      model: lsscnn
+      probes: kg
+      smoothing_sigma_arcmin: 7.971 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.00005
+      grad_clip_percentile: 90
+      normalization: null # [null, batch_norm, layer_norm]
+      kernel_size: 3
+      n_conv_layers: 4
+      n_res_layers: 10
+      filters: 128
+
+    - name: kg_standard_psd_sig8
+      model: lsspsd
+      probes: kg
+      smoothing_sigma_arcmin: 7.971 # apply Gaussian smoothing (sigma in arcmin)
+      learning_rate: 0.0002
+      grad_clip_percentile: 90
+      ells: [36, 4536, 20]
+      kernel_size: 3
+      n_conv_layers: 2
+      n_res_layers: 0
+      filters: 512
+      arch: classic
