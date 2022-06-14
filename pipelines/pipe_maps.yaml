@@ -1,8 +1,7 @@
 ##########################################################
 ####
-####      Make Maps
+####  Make Maps for DeepLSS
 ####
-####  srun --cluster=gmerlin6 --account=gwendolen --partition=gwendolen --gpus=1 --cpus-per-gpu=16
 ##########################################################
 
 
@@ -16,21 +15,10 @@
   dep: make_maps_stage3
   cmd: esub repos/deep_lss/deep_lss/apps/run_recordmaker.py --filename_config=config_stage3.yaml --dirpath_output=/data/project/general/DeepLearningCP/data/data_products/projected_maps_stage3nonorm/ --tasks='0>57' --n_cores=57 --mode=jobarray --verbosity=debug
 
-# astrosamples for halton seq
+# astrosamples for Sobol seq
 
 - name: //make_tfrecords_astrosamples
   cmd: esub repos/deep_lss/deep_lss/apps/run_astrosampler.py --filename_config=config_stage3.yaml --mode=jobarray
-
-
-# kids450 mosaic 16
-
-- name: //make_maps_kids450
-  cmd: esub repos/deep_lss/deep_lss/apps/run_mapmaker.py --filename_config=config_smoothing.yaml --dirpath_output=/data/project/general/DeepLearningCP/data/data_products/projected_maps_kids450mosaic2/ --mean_subtract=per_map --tasks='0>57' --n_cores=57 --mode=jobarray
-
-
-- name: //make_tfrecords_kids450
-  cmd: esub repos/deep_lss/deep_lss/apps/run_recordmaker.py --filename_config=config_smoothing.yaml --dirpath_output=/data/project/general/DeepLearningCP/data/data_products/projected_maps_kids450mosaic2/ --tasks='0>57' --n_cores=57 --mode=jobarray --verbosity=debug
-
 
 # make map plots
 
