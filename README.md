@@ -3,7 +3,7 @@ Code for the DeepLSS  paper (2022), by Tomasz Kacprzak and Janis Fluri [2203.096
 
 
 To reproduce the results, see the `pipelines` directory.
-You will need configuration files from `config` and the submission script [esub](https://github.com/tomaszkacprzak/esub)
+You will need configuration files from `config` and the submission script [esub](https://github.com/tomaszkacprzak/esub).
 
 
 # The data
